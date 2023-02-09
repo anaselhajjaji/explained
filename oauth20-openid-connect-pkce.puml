@@ -1,0 +1,45 @@
+@startuml "OAuth 2.0 & OpenID Connect"
+
+actor "Resource Owner (RO)" as res_owner
+participant "Client" as client
+participant "Authorization Server (AS)" as auth_server
+participant "Resource Server (RS)" as res_server
+
+res_owner -> client : click on login button
+
+client -> client : generate code verifier & challenge (PKCE)
+note left
+    code verifier is a random string
+    challenge is derived from code verifier (SHA256 hash)
+end note
+
+client -> auth_server : request Authorization Code + challenge
+
+auth_server --> res_owner : redirect to login and authorization prompt (302)
+
+res_owner -> auth_server : authenticate and consent
+
+auth_server --> client : Authorization Code
+
+client -> auth_server : Authorization Code + code verifier
+
+auth_server -> auth_server : validate code verifier + challenge
+
+auth_server --> client : ID Token (OIDC)\nAccess Token & Refresh Token (OAuth 2.0)
+note left
+    TTL of access token 1H
+    TTL of refresh token 14-90 days
+    If refresh token is expired, 
+    user need to re-authenticate
+end note
+
+alt "Access Token expired"
+    client -> auth_server : request new access token (Refresh Token)
+    auth_server --> client : Access Token
+end
+
+client -> res_server : Access to the resource (Access Token)
+res_server -> res_server : check the scope for rights
+res_server --> client : Resource
+
+@enduml
