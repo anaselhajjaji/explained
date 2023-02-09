@@ -1,4 +1,4 @@
-@startuml "OAuth 2.0 & OpenID Connect"
+@startuml "OAuth 2.0 & OpenID Connect (PKCE)"
 
 actor "Resource Owner (RO)" as res_owner
 participant "Client" as client
